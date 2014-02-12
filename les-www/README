@@ -1,0 +1,48 @@
+IPChronos Load Estimation Service (LES) HTTP interface
+======================================================
+Intro
+-----
+For easier integration with other applications, we have implemented an HTTP interface for accessing the LES. When accessing this web service, it communicates with the LES using the ascii-based LES protocol and returns data in one of the following formats:
+- JSON: The data returned from the server are represented as a JSON object.
+- Raw: The service outputs the data received from the LES without any processing
+- Short: Only the estimated load value is returned.
+
+
+Options
+-------
+Applications can receive load estimates simply by accessing this web service's URL, e.g.:
+http://www.les.host/les/?proto=tcp&format=json&port=7575
+
+The available HTTP request parameters are the following:
+host: LES IP address oro hostname. [Default: localhost]
+proto [tcp,udp]: Protocol for the back-end communication between the web service and the LES. [Default: udp]
+port: Port the LES listens for load requests. [Default: 7575]
+format [json,short,raw]: Output format for the web service response.
+
+
+Installation
+------------
+This web API requires apache2 with modphp5. Install apache and move the contents of this directory in the appropriate folder of your apache installation. Make sure that your php installation has the socket and json extensions enabled and make sure that your firewall does not affect communication between the LES and this service.
+
+
+Examples
+--------
+http://localhost/les/?proto=tcp&host=localhost&port=7575&format=json
+Result:
+{"Status":0,"Delay-avg":125493.902311,"Delay-min":80984,"Delay-max":187752,"Samples":593,"Load-type":0.007}
+
+http://localhost/les/?proto=tcp&host=localhost&port=7575&format=short
+Result:
+0.014
+
+http://localhost/les/?proto=tcp&host=localhost&port=7575&format=short
+Result:
+LRSP
+Content-length: 106
+Status: 0
+Delay-avg: 136675.804235
+Delay-min: 80984
+Delay-max: 187752
+Samples: 631
+Load-type: 0.026
+

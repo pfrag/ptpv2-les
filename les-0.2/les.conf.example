@@ -1,0 +1,47 @@
+########################################
+# Serial port configuration
+########################################
+ttyspeed 115200
+ttydev /dev/pts/2
+
+########################################
+# Load estimation algorithm parameters
+########################################
+# Fit function. The delay variable should ALWAYS be upper-case X.
+# Allowed operators: +-/*^
+# Some examples:
+#fitfunc 214373.634*X+104964.155
+#fitfunc 0.8961*e^(4.656e-008*X)-1.954*e^(-8.066e-006*X)
+#fitfunc -0.23e-012*(X^3)+0.00000003916104*(X^2)-0.00045613761311*X-1.52544893919214
+fitfunc 1305339*((ln(X))^3)-58109253*((ln(X))^2)+873471338*(ln(X))-4359867147
+
+# smooting factor
+w 0.87
+
+# sample window size
+winsize 1
+
+# low load delay threshold
+dlow 150000
+
+# ignore SYNC delay samples
+skipsync n
+
+########################################
+# Network, application behavior, etc.
+########################################
+# Protocol
+protocol TCP
+
+# Port to listen to
+port 7575
+
+# Lock file
+lockfile les.lock
+
+# Run as daemon (1) or not (0)
+daemon n
+
+# Sample output file
+outfile	output.log
+

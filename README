@@ -1,0 +1,28 @@
+PTPv2-based network load estimation software
+==================
+- les-0.2.tar.gz: Load Estimation Service implementation (C sources).
+- myperf-0.1.tar.gz: Traffic generator capable of generating UDP flows with packets following multimodal distributions (C sources).
+- monitor: Scripts for real-time load and delay monitoring (bash, gnuplot)
+- les-www: LES HTTP API (php sources).
+- serialemu: Tools/instructions on emulating serial communication with a Spectracom SecureSync PTPv2 slave device using existing traces. 
+- data-processing: Tools for processing data retrieved from Spectracom SecureSync PTPv2 slave device (python sources).
+- evaluation: Tools to train the load estimation algorithm (select appropriate window and smoothing factor values based on measurements).
+
+Requirements
+=============
+- gcc (plus flex, bison, libpthread)
+- python (with scipy, numpy)
+- gnuplot
+- socat (for serial comm. emulation)
+- minicom (for testing serial communication with PTPv2 devices)
+- apache with modphp5
+
+
+Installation instructions
+=========================
+les-0.2: Extract sources from the archive. Move to the source directory and type ./configure && make (and potentially make install as superuser).
+myperf-0.1: Extract sources from the archive. Move to the source directory and type ./configure && make (and potentially make install as superuser).
+les-www: Copy it to the appropriate apache2 HTTP documents directory (e.g. /var/www).
+
+For more information on building, installing, configuring and running this software see the README files in each directory.
+

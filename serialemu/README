@@ -1,0 +1,22 @@
+Emulation of Spectracom SecureSync devices
+==========================================
+Typically, our LES works on data it receives from a slave device over the serial
+port. We can still test the operation of the system even if the devices are not
+available. To achieve this, we need to somehow emulate input from a virtual 
+serial device. Then, we can configure the LES to read from it just as if it was
+connected to a PTP slave.
+
+We use the socat utility for emulating serial communication and a simple python
+script which works on already recorded data output. The idea is this:
+- Use a trace we've recorded from past measurements
+- A python script reads the trace file and outputs 1 line/s to stdout
+- We use socat to create a virtual connection between a pts device and the 
+output of the python scirpt. For example:
+
+socat -d -d pty,raw,echo=0 "exec:/usr/bin/python ./securesync.py datafile.log,pty,raw,echo=0"
+
+We can test if it works using the minicom utility. 
+
+[Do not forget to edit the LES configuration file to read from the virtual pts
+device.]
+

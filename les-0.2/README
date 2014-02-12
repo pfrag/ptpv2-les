@@ -1,0 +1,108 @@
+PTPv2-Based Load Estimation Service (LES)
+=========================================
+
+Intro
+-----
+This software provides a service to estimate network load on the path between
+a PTPv2 slave and a master, based on timestamped messages exchanged by the two
+devices and path delay calculations carried out on these timestamps. This LES
+is implemented specifically for Spectracom SecureSync devices, but with some
+(minimal) development effort it could be extended to work with other PTPv2
+implementations.
+
+
+Operation
+----------------------
+LES reads timestamp information over a serial connection with a PTPv2 slave. It
+assumes that the slave device periodically (upon reception of a SYNC or 
+DELAY_RESPONSE message) transmits a line of text with the following format:
+
+099 13:54:16.049 1365515656047880237 1365515656047985187 1365515655218928743 1365515655219080435
+
+We estimate path delay using the above timestamps (the 4 last fields, i.e., T1, 
+T2, T3, T4). T1 and T2 are the timestamps when a SYNC message was transmitted
+from a master and received from the slave respectively. T3 is the time a 
+DELAY_REQ was transmitted from the master and T4 the time it was received from
+the slave. Path delay is calculated as [(T2 - T1) + (T4 - T3)]/2. For consecutive
+SYNC messages, T3 and T4 have the same values across the consecutive lines.
+A load estimation algorithm runs on these measurements and keeps a running 
+estimate of network load. The exact function of load as a function of delay
+should be given in the configuration file (see below). Loads are in the [0.0,1.0]
+range (0: no load, 1: congestion).
+
+
+Communication protocol
+----------------------
+The LES is accessible using a simple ascii-based protocol. It responds to load
+estimation requests (LREQ) by clients over TCP or UDP (this is a configuration option,
+along with the port the server listens to). Typical response to a LREQ is:
+
+LRSP\r\n
+Content-length: 108\r\n
+Status: 0\r\n
+Delay-avg: 116061.717153\r\n
+Delay-min: 17503\r\n
+Delay-max: 30373942\r\n
+Samples: 312\r\n
+Load-type: 0.053\r\n
+
+To access the service, the client has to send the following string:
+LREQ\r\nContent-length: 0\r\n
+
+
+Building and installing
+-----------------------
+Simply type ./configure && make && make install. Run the service as follows:
+les les.conf
+where les.conf is the file where runtime configuration options are specified. An
+example configuration file is included in the distribution. 
+
+
+Configuration
+-------------
+See les.conf.example for a sample LES configuration file. The following options
+are available:
+
+ttyspeed: Serial port speed (typically 115200).
+
+ttydev: tty device to read data from. Example: /dev/ttyUSB0
+
+fitfunc: The expression of load as a function of delay. Arbitrary function definitions
+are possible. The operators supported are +-/*^. Constants can be expressed 
+either in decimal or exponential notation. Note that the function variable 
+should always be upper-case X.
+Example: fitfunc 0.8961*e^(4.656e-008*X)-1.954*e^(-8.066e-006*X)
+
+w: Smoothing factor for maintaining a weighted moving average of network load.
+
+winsize: Sample window size. The algorithm calculates current delay averaging
+a number of current delay samples. Setting winsize to 1 or a very small value
+is suggested.
+
+dlow: Low load delay threshold (in nanoseconds). When delay is less than dlow,
+the algorithm assumes that load is 0. This value can be selected after a set
+of testbed experiments
+
+skipsync: Ignore SYNC delay samples (y/n). If set to "y", the algorithm updates
+his delay estimate only upon the reception of a DELAY_RESP message.
+
+protocol: Protocol used (TCP/UDP).
+
+port: Port the server listens to.
+
+lockfile: Server lockfile (only relevant when running as a daemon).
+
+daemon: Run as daemon (1) or not (0)
+
+outfile: Sample output file. The server outputs timestamped mean path delay
+and load estimates in a text file. This file has one line per load estimate.
+Example:
+2013-04-13,13:22:22.318 805256  0.120560
+[timestamp-mean path delay-current load estimate]
+
+
+Contact
+-------
+Pantelis A. Frangoudis
+[pantelis.frangoudis@inria.fr]
+
